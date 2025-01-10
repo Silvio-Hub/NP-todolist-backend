@@ -1,86 +1,95 @@
 import { json, Request, Response } from "express";
 import TaskService from "../services/TaskService";
+import {
+  GetSchema,
+  GetByIdSchema,
+  AddSchema,
+  UpdateSchema,
+  UpdateSchemaParams,
+  DeleteSchema,
+} from "../schemas/TaskSchema";
+
+import { v4 as uuidv4 } from "uuid";
+
+import multer from "multer";
 
 const taskservice = new TaskService();
 
 class TaskController {
   constructor() {}
 
-  get(Req: Request, Res: Response) {
-    const { status } = Req.query;
+  async get(Req: Request, Res: Response) {
+    try {
+      const status = Req.query.status;
+      await GetSchema.validate(Req.query);
 
-    if (status && (status === "completed" || status === "in_progress")) {
-      const result = taskservice.get(status);
+      const result = taskservice.get(status as string);
       Res.json(result);
-    } else {
-      Res.json({ error: "Invalid status parameter" });
+      Res.status(200);
+    } catch (error) {
+      Res.json({ error: error });
       Res.status(401);
     }
   }
 
-  getById(Req: Request, Res: Response) {
+  async getById(Req: Request, Res: Response) {
     const { id_task } = Req.params;
-
-    if (id_task) {
+    try {
+      await GetByIdSchema.validate(Req.params);
       const result = taskservice.getById(id_task);
 
       Res.json(result);
-    } else {
-      Res.json({ error: "Invalid id_task param" });
+    } catch (error) {
+      Res.json({ error: error });
       Res.status(401);
     }
   }
 
-  add(Req: Request, Res: Response) {
-    const { id, description, data, status } = Req.body;
+  async add(Req: Request, Res: Response) {
+    try {
+      await AddSchema.validate(Req.body);
 
-    if (id && description && data && status) {
-      if (status === "in_progress" || status === "completed") {
-        const result = taskservice.add(Req.body);
-        Res.json(result);
-        Res.status(201);
-      } else {
-        Res.json({ error: "Invalid status: completed or in_progress" });
-        Res.status(401);
-      }
-    } else {
-      Res.json({ error: "Invalid parameters" });
-      Res.status(401);
-    }
-  }
+      const id = uuidv4();
+      Req.body.id = id;
 
-  update(Req: Request, Res: Response) {
-    const { id, description, data, status } = Req.body;
-    const { id_task } = Req.params;
-
-    if (id && description && data && status && id_task) {
-      if (status === "in_progress" || status === "completed") {
-        const result = taskservice.update(Req.body, id_task);
-
-        if (Object.keys(result).length > 0) {
-          Res.json(result);
-        } else {
-          Res.json({ error: "Task not faund" });
-          Res.status(404);
-        }
-      } else {
-        Res.json({ error: "Inavlid status parameter" });
-        Res.status(401);
-      }
-    } else {
-      Res.json({ error: "Invalid Parameters" });
-    }
-  }
-
-  delete(Req: Request, Res: Response) {
-    const { id_task } = Req.params;
-    if (id_task) {
-      const result = taskservice.delete(id_task);
-
+      const result = taskservice.add(Req.body);
       Res.json(result);
-    } else {
-      Res.json({ error: "id_task is required in params" });
+      Res.status(201);
+    } catch (error) {
+      Res.json({ error: error });
       Res.status(401);
+    }
+  }
+
+  async update(Req: Request, Res: Response) {
+    try {
+      const { id_task } = Req.params;
+
+      await UpdateSchema.validate(Req.body);
+      await UpdateSchemaParams.validate(id_task);
+
+      const result = taskservice.update(Req.body, Req.body.id_task);
+
+      if (Object.keys(result).length > 0) {
+        Res.json(result);
+      } else {
+        Res.json({ error: "Task not faund" });
+        Res.status(404);
+      }
+    } catch (error) {
+      Res.json({ error: error });
+      Res.status(400);
+    }
+  }
+
+  async delete(Req: Request, Res: Response) {
+    try {
+      const { id_task } = Req.params;
+      await DeleteSchema.validate(id_task);
+      const result = taskservice.delete(id_task);
+      Res.json(result);
+    } catch (error) {
+      Res.json({ error });
     }
   }
 }
