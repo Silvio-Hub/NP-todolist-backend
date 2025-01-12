@@ -37,3 +37,71 @@ Route - /task - Buscar todas as tarefa
 _____________________________________________________
 
 Route - /task/{id_task} - Buscar apenas 1 tarefa
+
+_____________________________________________________
+
+
+
+AUTENTICAÇÃO VS AUTORIZAÇÃO
+
+    AUTENTICAÇÃO - A autenticação é usada para verificar a identidade de um usuário.
+        -- EMAIL
+        --SENHA
+
+        --TOKEN
+
+    AUTORIZAÇÃO - A autorização é usada para determinar quais ações um usuário pode realizar depois dele já ter sito autenticado.
+
+
+    user SILVIO -> INICIA UMA SESSÃO
+        E-mail e senha -> token (uma sequencia de caracteres é uma sequencia criptografada com os dados do usuário JWT)
+        Cadastrar um novo usuário adm - nome, email, senha, perfil (adm ou limited)
+        Quando o teken chegar junto com os dados na rota de novo usuário a rota vai pegas os dados do usuário que está solicitando aquela ação e identificar se o token é válido, ver se o usuário tem permissão.
+
+        ROTA PROTEGIDA
+            TOKEN
+            Verifica se o token é válido
+            Descriptografar o token e pegar os dados do usuário
+            Vai verificar se aquele usuário tem autorização para fazer aquela ação.
+
+_____________________________________________________
+
+MANEIRA DE FAZER AUTENTICAÇÃO
+
+Autenticação com senha
+
+Autenticação com token de acesso
+
+Autenticação com certificado digital
+
+_____________________________________________________
+
+COMO AS EMPRESAS TRABALHAM COM AUTENTICAÇÃO?
+
+ - AWS Cognito
+ - AD Azure
+ - Google Authenticator
+
+ - Criar o meu próprio serviço de autenticação
+
+    -- MICROSERVIÇO - Serviço com uma única responsabilidade independente de outros serviços com seu próprio banco de dados e instânvia.
+
+    -- MONOLITO - Um único serviço que tem todas as responsabilidades. autenticação, autorização, usuários, produtos, categorias, subcategorias ...
+
+_____________________________________________________
+
+
+SENHAS E SEGURANÇA
+
+MD5
+BASE64
+
+
+BCRYPT
+
+_____________________________________________________
+
+JWT (Json Web Token)
+
+CABEÇALHO - PAYLOAD - ASSINATURA
+
